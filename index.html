@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Safety Flow Research Preview</title>
+  <meta name="description" content="Safety Flow Core V1.1 research preview" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">RESEARCH PREVIEW · NOT ORIGINAL V1</div>
+      <h1>Safety Flow</h1>
+      <p>轻量现场安全排查与整改闭环</p>
+    </div>
+    <button id="resetBtn" class="ghost">重置演示</button>
+  </header>
+
+  <main class="shell">
+    <section class="hero">
+      <div>
+        <span class="pill">Core V1.1</span>
+        <h2>发现一个问题，直到它真正解决。</h2>
+        <p>普通人员只负责快速上报；安全管理人员负责确认、分派、验收和归档。</p>
+      </div>
+      <button id="newReportBtn" class="primary">＋ 发现问题</button>
+    </section>
+
+    <section class="stats" id="stats"></section>
+
+    <section class="workspace">
+      <aside class="sidebar">
+        <button class="nav active" data-view="reports">待确认 <span id="badgeReports"></span></button>
+        <button class="nav" data-view="actions">我的整改 <span id="badgeActions"></span></button>
+        <button class="nav" data-view="verify">待我验收 <span id="badgeVerify"></span></button>
+        <button class="nav" data-view="overdue">已超期 <span id="badgeOverdue"></span></button>
+        <button class="nav" data-view="ledger">台账</button>
+      </aside>
+      <section class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="eyebrow" id="viewEyebrow">TRIAGE</div>
+            <h3 id="viewTitle">待确认</h3>
+          </div>
+          <div class="legend">Report → Finding → Action → Verification → Closed</div>
+        </div>
+        <div id="list" class="list"></div>
+      </section>
+    </section>
+
+    <section class="note">
+      <strong>当前预览重点：</strong>
+      <span>极简上报、专业确认、整改证据、验收退回、操作留痕。Safety Pack、QR、外部整改链接将在真实 V1 审计后决定实现方式。</span>
+    </section>
+  </main>
+
+  <dialog id="reportDialog">
+    <form method="dialog" id="reportForm">
+      <div class="dialog-head">
+        <div>
+          <div class="eyebrow">30-SECOND REPORT</div>
+          <h3>发现问题</h3>
+        </div>
+        <button value="cancel" class="icon-btn" aria-label="关闭">×</button>
+      </div>
+      <label>地点
+        <select id="locationInput" required>
+          <option value="">请选择</option>
+          <option>3#配电房</option>
+          <option>地下车库</option>
+          <option>消防通道</option>
+          <option>设备机房</option>
+          <option>员工食堂</option>
+        </select>
+      </label>
+      <label>问题描述
+        <textarea id="descInput" required maxlength="120" placeholder="例如：消防通道堆放纸箱，影响通行"></textarea>
+      </label>
+      <label>现场证据
+        <input id="photoInput" type="file" accept="image/*" />
+        <small>本预览仅记录“已选择图片”，不会上传真实文件。</small>
+      </label>
+      <div class="dialog-actions">
+        <button value="cancel" class="ghost">取消</button>
+        <button id="submitReport" value="default" class="primary">提交问题</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="detailDialog">
+    <div class="detail" id="detailContent"></div>
+  </dialog>
+
+  <script src="./app.js"></script>
+</body>
+</html>

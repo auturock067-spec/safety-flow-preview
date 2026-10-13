@@ -62,7 +62,7 @@
           <div class="eyebrow">30-SECOND REPORT</div>
           <h3>发现问题</h3>
         </div>
-        <button value="cancel" class="icon-btn" aria-label="关闭">×</button>
+        <button type="button" onclick="document.getElementById('reportDialog').close()" class="icon-btn" aria-label="关闭">×</button>
       </div>
       <label>地点
         <select id="locationInput" required>
@@ -82,7 +82,7 @@
         <small>本预览仅记录“已选择图片”，不会上传真实文件。</small>
       </label>
       <div class="dialog-actions">
-        <button value="cancel" class="ghost">取消</button>
+        <button type="button" onclick="document.getElementById('reportDialog').close()" class="ghost">取消</button>
         <button id="submitReport" value="default" class="primary">提交问题</button>
       </div>
     </form>

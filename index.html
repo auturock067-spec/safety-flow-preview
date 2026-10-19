@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Safety Flow Research Preview</title>
+  <title>Safety Flow 安巡记 · 本机测试</title>
   <meta name="description" content="Safety Flow Core V1.1 research preview" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
@@ -14,10 +14,18 @@
       <h1>Safety Flow</h1>
       <p>轻量现场安全排查与整改闭环</p>
     </div>
-    <button id="resetBtn" class="ghost">重置演示</button>
+    <button id="resetBtn" class="ghost">载入演示数据</button>
   </header>
 
   <main class="shell">
+    <section class="note"><strong>本机测试版 · TEST DATA ONLY</strong><p>仅保存于当前浏览器，无云端同步、登录认证或单位数据隔离。不要录入真实患者、人员或生产敏感资料。角色切换仅模拟流程；本地审计记录可被设备使用者修改。</p></section>
+    <p id="message" role="status" aria-live="polite"></p>
+    <section class="toolbar" aria-label="测试身份与台账工具">
+      <label>测试身份<select id="actorInput"><option value="inspector">巡查人员</option><option value="manager">安全管理员</option><option value="worker">现场责任组</option><option value="reviewer">复核人员</option></select></label>
+      <label>搜索<input id="searchInput" type="search" placeholder="编号、地点、描述、责任组"></label>
+      <label>状态筛选<select id="stageInput"><option value="">全部状态</option><option value="report">待确认</option><option value="action">整改中</option><option value="verify">待验收</option><option value="closed">已关闭</option></select></label>
+      <button id="exportCsv" class="ghost">导出当前筛选台账 CSV</button><button id="exportJson" class="ghost">导出完整本机备份</button>
+    </section>
     <section class="hero">
       <div>
         <span class="pill">Core V1.1</span>
@@ -51,18 +59,18 @@
 
     <section class="note">
       <strong>当前预览重点：</strong>
-      <span>极简上报、专业确认、整改证据、验收退回、操作留痕。Safety Pack、QR、外部整改链接将在真实 V1 审计后决定实现方式。</span>
+      <span>极简上报、专业确认、整改图片、验收退回、操作留痕。Safety Pack、QR、外部整改链接将在真实 V1 审计后决定实现方式。</span>
     </section>
   </main>
 
   <dialog id="reportDialog">
-    <form method="dialog" id="reportForm">
+    <form id="reportForm">
       <div class="dialog-head">
         <div>
           <div class="eyebrow">30-SECOND REPORT</div>
           <h3>发现问题</h3>
         </div>
-        <button type="button" onclick="document.getElementById('reportDialog').close()" class="icon-btn" aria-label="关闭">×</button>
+        <button type="button" data-close="reportDialog" class="icon-btn" aria-label="关闭">×</button>
       </div>
       <label>地点
         <select id="locationInput" required>
@@ -75,15 +83,16 @@
         </select>
       </label>
       <label>问题描述
-        <textarea id="descInput" required maxlength="120" placeholder="例如：消防通道堆放纸箱，影响通行"></textarea>
+        <textarea id="descInput" required maxlength="500" placeholder="例如：消防通道堆放纸箱，影响通行"></textarea>
       </label>
       <label>现场证据
-        <input id="photoInput" type="file" accept="image/*" />
-        <small>本预览仅记录“已选择图片”，不会上传真实文件。</small>
+        <input id="photoInput" type="file" accept="image/png,image/jpeg,image/webp" multiple />
+        <small>可选，最多 3 张，每张不超过 1MB。图片实际保存在本机浏览器，清除浏览器数据会丢失。</small>
       </label>
+      <p id="reportError" role="alert" class="error"></p>
       <div class="dialog-actions">
-        <button type="button" onclick="document.getElementById('reportDialog').close()" class="ghost">取消</button>
-        <button id="submitReport" type="submit" value="default" class="primary">提交问题</button>
+        <button type="button" data-close="reportDialog" class="ghost">取消</button>
+        <button id="submitReport" type="submit" class="primary">提交问题</button>
       </div>
     </form>
   </dialog>
@@ -92,6 +101,14 @@
     <div class="detail" id="detailContent"></div>
   </dialog>
 
+  <dialog id="actionDialog"><form id="actionForm">
+    <div class="dialog-head"><h3 id="actionTitle"></h3><button type="button" data-close="actionDialog" class="icon-btn" aria-label="关闭操作">×</button></div>
+    <div id="assignFields"><label>责任组<select id="actionAssignee"><option>现场责任组</option></select></label><label>整改截止时间<input id="actionDue" type="datetime-local"></label></div>
+    <label>处理说明<textarea id="actionNote" maxlength="500" placeholder="整改措施、验收意见或退回原因"></textarea></label>
+    <label id="actionPhotoLabel">整改图片<input id="actionPhotos" type="file" accept="image/png,image/jpeg,image/webp" multiple><small>至少一张有效图片，最多 3 张，单张不超过 1MB。</small></label>
+    <p id="actionError" class="error" role="alert"></p><div class="dialog-actions"><button type="button" data-close="actionDialog" class="ghost">取消</button><button id="submitAction" type="submit" class="primary">保存操作</button></div>
+  </form></dialog>
+  <script src="./core.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>

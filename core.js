@@ -33,6 +33,8 @@
     const x = structuredClone(item), from = x.stage;
     requireValue(actor && actors[actor.role]?.name === actor.name, '请选择测试身份');
     requireValue(validDate(at), '时间无效');
+    const knownTimes = [x.createdAt, x.updatedAt, ...x.history.map(h => h.at)].filter(validDate).map(value => Date.parse(value));
+    requireValue(knownTimes.every(value => Date.parse(at) >= value), '操作时间不能早于已有审计记录');
     if (action === 'assign') {
       requireValue(from === 'report' && actor.role === 'manager', '只有管理员可分派待确认事项');
       x.assignee = text(input.assignee, 100);
@@ -72,6 +74,24 @@
       requireValue(x.createdAt === null || validDate(x.createdAt), '创建时间无效');
       requireValue(x.due === null || validDate(x.due), '截止时间无效');
       requireValue(x.assignee === null || typeof x.assignee === 'string', '责任人格式无效');
+      // Legacy imports explicitly lack verified dates/evidence; do not invent either.
+      // New records must preserve a continuous state history and a real closure event.
+      if (x.createdAt !== null) {
+        requireValue(x.history.length > 0 && validDate(x.updatedAt), '操作历史或更新时间无效');
+        let previousState = null, previousTime = Date.parse(x.createdAt);
+        const allowed = { report: ['action'], action: ['verify'], verify: ['action', 'closed'], closed: [] };
+        for (let index = 0; index < x.history.length; index++) {
+          const h = x.history[index];
+          requireValue(validDate(h.at) && Date.parse(h.at) >= previousTime, '审计时间顺序无效');
+          requireValue(h.from === previousState && (index === 0 ? h.to === 'report' : allowed[previousState]?.includes(h.to)), '状态与审计历史不一致');
+          previousState = h.to; previousTime = Date.parse(h.at);
+        }
+        requireValue(previousState === x.stage && Date.parse(x.updatedAt) === previousTime, '当前状态与审计历史不一致');
+        if (x.stage === 'closed') {
+          const last = x.history.at(-1);
+          requireValue(last.action === '验收通过并关闭' && last.role === 'reviewer' && last.actor !== x.rectifier && x.rectificationEvidence.length > 0 && validDate(x.closedAt) && Date.parse(x.closedAt) === previousTime, '关闭记录缺少独立验收或整改证据');
+        }
+      }
     }
     return items;
   }
@@ -86,9 +106,12 @@
   }
   function serialize(items) { validItems(items); return JSON.stringify({ version: 2, mode: 'local-test-only', items }); }
   function persist(storage, key, next, expected) {
-    // Compare-and-set avoids silently overwriting another tab's changes.
+    // Callers must serialize cross-tab writes with a shared Web Lock. These
+    // revision checks detect stale/reentrant writes; localStorage is not CAS.
     requireValue(storage.getItem(key) === expected, '其他标签页已更新数据，请刷新后重试');
-    const raw = serialize(next); storage.setItem(key, raw); return raw;
+    const raw = serialize(next);
+    requireValue(storage.getItem(key) === expected, '其他标签页已更新数据，请刷新后重试');
+    storage.setItem(key, raw); return raw;
   }
   function csvCell(value) {
     let s = String(value ?? ''); if (/^[\s]*[=+\-@]/.test(s)) s = "'" + s;

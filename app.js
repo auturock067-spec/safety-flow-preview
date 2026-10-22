@@ -16,11 +16,16 @@ try {
     }
   }
 } catch (e) { locked = true; message('本地数据无法读取，已停止写入以保护原数据。请先导出原始备份。' + e.message, true); }
-function commit(next) {
+async function commit(next) {
   if (locked) throw new Error('本地数据异常，写入已锁定');
-  try { raw = C.persist(localStorage, KEY, next, raw); }
-  catch (e) { throw new Error('保存失败，未变更记录，请保留表单并导出备份。' + e.message); }
-  items = next; render(); message('已保存到本机浏览器；未上传云端。');
+  if (!navigator.locks?.request) throw new Error('当前浏览器不支持安全本地写入，请使用支持 Web Locks 的现代浏览器；表单尚未保存。');
+  const expected = raw;
+  return navigator.locks.request('safety-flow:' + KEY, { mode: 'exclusive' }, () => {
+    if (locked) throw new Error('数据已在其他标签页更新，请刷新后重试');
+    try { raw = C.persist(localStorage, KEY, next, expected); }
+    catch (e) { throw new Error('保存失败，未变更记录，请保留表单并导出备份。' + e.message); }
+    items = next; render(); message('已保存到本机浏览器；未上传云端。');
+  });
 }
 const stageLabels = { report: '待确认', action: '整改中', verify: '待验收', closed: '已关闭' };
 const labels = { reports:['TRIAGE','待确认'], actions:['ACTION','我的整改'], verify:['VERIFICATION','待我验收'], overdue:['OVERDUE','已超期'], ledger:['LEDGER','台账'] };
@@ -90,7 +95,7 @@ $('#reportForm').addEventListener('submit',async e=>{
   const currentActor=actor();
   try {
     const input={location:$('#locationInput').value,desc:$('#descInput').value,photos:await readPhotos($('#photoInput'))};
-    commit([C.report(input,currentActor),...items]); $('#reportForm').reset(); $('#reportDialog').close();
+    await commit([C.report(input,currentActor),...items]); $('#reportForm').reset(); $('#reportDialog').close();
   } catch(e){$('#reportError').textContent=e.message;}
   finally{submit.disabled=false;}
 });
@@ -100,7 +105,7 @@ $('#actionForm').addEventListener('submit',async e=>{
     const x=items.find(i=>i.id===p.id);
     const input={assignee:$('#actionAssignee').value,due:$('#actionDue').value,note:$('#actionNote').value,photos:p.action==='rectify'?await readPhotos($('#actionPhotos')):[]};
     const next=C.transition(x,p.action,input,currentActor);
-    commit(items.map(i=>i.id===p.id?next:i)); $('#actionDialog').close();
+    await commit(items.map(i=>i.id===p.id?next:i)); $('#actionDialog').close();
   } catch(e){$('#actionError').textContent=e.message;}
   finally{b.disabled=false;}
 });
@@ -112,7 +117,7 @@ $('#exportJson').onclick=()=>{
   try { download('safety-flow-local-backup.json',locked?JSON.stringify({unreadable:localStorage.getItem(KEY),legacy:localStorage.getItem('sf-preview')}):C.serialize(items),'application/json'); }
   catch(e){message('无法访问本地存储：'+e.message,true);}
 };
-$('#resetBtn').onclick=()=>{
+$('#resetBtn').onclick=async()=>{
   if(locked){message('数据异常，禁止覆盖。请先导出原始备份。',true);return;}
   if(!confirm('载入演示会替换当前本机测试记录。请先导出备份。是否继续？'))return;
   try {
@@ -121,7 +126,7 @@ $('#resetBtn').onclick=()=>{
     let b=C.report({location:'3#配电房',desc:'【演示】配电柜前堆放维修材料'},C.actors.inspector,at,'DEMO-002');
     b=C.transition(b,'assign',{assignee:C.actors.worker.name,due:new Date(Date.now()+86400000).toISOString()},manager);
     // Legacy demo records are preserved through migration; new examples never fake evidence.
-    commit([a,b]);
+    await commit([a,b]);
   }catch(e){message(e.message,true);}
 };
 window.addEventListener('storage',e=>{if(e.key===KEY||e.key===null){locked=true;message('其他标签页已更新本地存储，请刷新以读取最新记录。当前页面写入已锁定。',true);render();}});

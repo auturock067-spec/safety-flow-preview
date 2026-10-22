@@ -37,11 +37,18 @@ button{cursor:pointer}
 .note{margin-top:16px;padding:14px 16px;border-radius:14px;background:#fff;border:1px dashed #cbd5e1;color:#475467;font-size:13px}
 dialog{border:0;border-radius:18px;padding:0;box-shadow:0 30px 80px rgba(15,23,42,.2);width:min(560px,calc(100vw - 24px))}
 dialog::backdrop{background:rgba(15,23,42,.35)}
-#reportForm,.detail{padding:20px}.dialog-head{display:flex;justify-content:space-between;align-items:flex-start}.dialog-head h3{margin:4px 0 14px}
+#reportForm,#actionForm,.detail{padding:20px}.dialog-head{display:flex;justify-content:space-between;align-items:flex-start}.dialog-head h3{margin:4px 0 14px}
 .icon-btn{border:0;background:transparent;font-size:28px;color:#667085}
 label{display:block;font-size:13px;font-weight:700;margin:14px 0;color:#344054}
 select,textarea,input[type=file]{width:100%;margin-top:7px;border:1px solid #d0d5dd;border-radius:10px;padding:11px;background:#fff}
 textarea{min-height:100px;resize:vertical}small{display:block;margin-top:6px;color:var(--muted);font-weight:400}
+input[type=search],input[type=datetime-local]{width:100%;margin-top:7px;border:1px solid #d0d5dd;border-radius:10px;padding:11px;background:#fff;min-width:0}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.toolbar label{flex:1;min-width:170px}
+.message{padding:12px;border-radius:10px;background:var(--accent-2)}.message:empty{display:none}.error{color:var(--danger);white-space:pre-wrap}
+.photos{display:flex;flex-wrap:wrap;gap:10px}.photos figure{margin:0;max-width:160px}.photos img{width:140px;height:100px;object-fit:contain}.photos figcaption{font-size:12px;overflow-wrap:anywhere}
+.card>div{min-width:0}.card h4,.detail,.meta,.event{overflow-wrap:anywhere}
+dialog{max-height:calc(100dvh - 24px);overflow:auto}.icon-btn,button{min-height:44px}button:disabled{opacity:.6;cursor:wait}:focus-visible{outline:3px solid #1f6feb;outline-offset:3px}[hidden]{display:none!important}
+@media(max-width:480px){.topbar{gap:12px;align-items:flex-start}.topbar>div{min-width:0}.eyebrow{letter-spacing:.04em}.hero{padding:20px}.toolbar label{min-width:100%}.toolbar button{width:100%}.card-actions button{flex:1}.dialog-actions{flex-wrap:wrap}}
 .dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
 .timeline{border-left:2px solid #e4e7ec;margin:18px 0 0 8px;padding-left:18px}
 .event{position:relative;margin:0 0 16px}.event:before{content:"";position:absolute;left:-24px;top:4px;width:10px;height:10px;border-radius:50%;background:#98a2b3;border:2px solid #fff}

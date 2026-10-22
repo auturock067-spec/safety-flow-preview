@@ -1,0 +1,11 @@
+{
+  "source": "auturock067-spec/safety-flow",
+  "sourceCommit": "6c8fca6ecb8635f910d11b593918a0f2a42906ce",
+  "mode": "local-test-only",
+  "hashes": {
+    "index.html": "331ffdc3c24f08f0c9052d053c2750aec4644e7792731d7ea77e272c06006c04",
+    "styles.css": "e3362630e0bf24bfad843ed14c7be67c8456332b929d1b43e95d81651ea9eb52",
+    "core.js": "416c1167fcce9d29199cf408dc90aefc9634cfc9d7cf26cb580053b91d19666d",
+    "app.js": "390da5fb69d148d68c43abc4249e341f0a9b207e7e0cf643595a85737f9317bd"
+  }
+}

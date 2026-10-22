@@ -1,69 +1,133 @@
-const seed=[
-  {id:"SF-001",location:"地下车库",desc:"消防通道堆放纸箱，影响通行",stage:"report",created:"今天 09:18",evidence:true,assignee:null,due:null,history:[["问题上报","巡查人员 · 今天 09:18"]]},
-  {id:"SF-002",location:"3#配电房",desc:"配电柜前堆放维修材料",stage:"action",created:"昨天 16:20",evidence:true,assignee:"设备维修组",due:"明天 17:00",history:[["问题上报","检查人员 · 昨天 16:20"],["确认并分派","安全管理员 · 昨天 16:35"]]},
-  {id:"SF-003",location:"设备机房",desc:"检修后防护罩未复位",stage:"verify",created:"昨天 14:05",evidence:true,assignee:"维保单位",due:"今天 12:00",history:[["问题上报","检查人员 · 昨天 14:05"],["确认并分派","安全管理员 · 昨天 14:20"],["提交整改证据","维保单位 · 今天 10:42"]]},
-  {id:"SF-004",location:"员工食堂",desc:"燃气阀门区域堆放杂物",stage:"action",created:"前天 11:40",evidence:true,assignee:"后勤维修",due:"昨天 18:00",history:[["问题上报","巡查人员 · 前天 11:40"],["确认并分派","安全管理员 · 前天 11:55"]]}
-];
-let items=JSON.parse(localStorage.getItem("sf-preview")||"null")||seed;
-let view="reports";
-const save=()=>localStorage.setItem("sf-preview",JSON.stringify(items));
-const nowLabel=()=>new Date().toLocaleString("zh-CN",{hour12:false,month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
-function overdue(x){return x.stage!=="closed"&&x.due&&x.due.includes("昨天")}
-function counts(){return{
-  reports:items.filter(x=>x.stage==="report").length,
-  actions:items.filter(x=>x.stage==="action").length,
-  verify:items.filter(x=>x.stage==="verify").length,
-  overdue:items.filter(overdue).length,
-  closed:items.filter(x=>x.stage==="closed").length
-}}
-function renderStats(){const c=counts();document.querySelector("#stats").innerHTML=[
-  ["待确认",c.reports],["待整改",c.actions],["待验收",c.verify],["已关闭",c.closed]
-].map(([k,v])=>`<div class="stat"><strong>${v}</strong><span>${k}</span></div>`).join("");
-document.querySelector("#badgeReports").textContent=c.reports||"";
-document.querySelector("#badgeActions").textContent=c.actions||"";
-document.querySelector("#badgeVerify").textContent=c.verify||"";
-document.querySelector("#badgeOverdue").textContent=c.overdue||"";
+'use strict';
+const C = SafetyCore, KEY = 'sf-web-v2', $ = s => document.querySelector(s);
+let items = [], raw = null, locked = false, view = 'reports', pending = null;
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = v => v ? new Date(v).toLocaleString('zh-CN', { hour12: false }) : '旧版时间未核实';
+const actor = () => C.actors[$('#actorInput').value];
+function message(s, error = false) { $('#message').textContent = s; $('#message').className = error ? 'message error' : 'message'; }
+try {
+  raw = localStorage.getItem(KEY);
+  if (raw !== null) items = C.decode(raw);
+  else {
+    const legacy = localStorage.getItem('sf-preview');
+    if (legacy !== null) {
+      items = C.migrate(legacy);
+      message('已读取旧版本机记录；原始 sf-preview 未改动。相对日期无法核实，旧图片标记不等于真实证据。');
+    }
+  }
+} catch (e) { locked = true; message('本地数据无法读取，已停止写入以保护原数据。请先导出原始备份。' + e.message, true); }
+async function commit(next) {
+  if (locked) throw new Error('本地数据异常，写入已锁定');
+  if (!navigator.locks?.request) throw new Error('当前浏览器不支持安全本地写入，请使用支持 Web Locks 的现代浏览器；表单尚未保存。');
+  const expected = raw;
+  return navigator.locks.request('safety-flow:' + KEY, { mode: 'exclusive' }, () => {
+    if (locked) throw new Error('数据已在其他标签页更新，请刷新后重试');
+    try { raw = C.persist(localStorage, KEY, next, expected); }
+    catch (e) { throw new Error('保存失败，未变更记录，请保留表单并导出备份。' + e.message); }
+    items = next; render(); message('已保存到本机浏览器；未上传云端。');
+  });
 }
-const labels={reports:["TRIAGE","待确认"],actions:["ACTION","我的整改"],verify:["VERIFICATION","待我验收"],overdue:["OVERDUE","已超期"],ledger:["LEDGER","台账"]};
-function filtered(){
- if(view==="reports")return items.filter(x=>x.stage==="report");
- if(view==="actions")return items.filter(x=>x.stage==="action");
- if(view==="verify")return items.filter(x=>x.stage==="verify");
- if(view==="overdue")return items.filter(overdue);
- return items;
+const stageLabels = { report: '待确认', action: '整改中', verify: '待验收', closed: '已关闭' };
+const labels = { reports:['TRIAGE','待确认'], actions:['ACTION','我的整改'], verify:['VERIFICATION','待我验收'], overdue:['OVERDUE','已超期'], ledger:['LEDGER','台账'] };
+function filtered() {
+  const q = $('#searchInput').value.trim().toLowerCase(), stage = $('#stageInput').value;
+  return items.filter(x =>
+    (view === 'reports' ? x.stage === 'report' : view === 'actions' ? x.stage === 'action' : view === 'verify' ? x.stage === 'verify' : view === 'overdue' ? C.overdue(x) : true) &&
+    (!stage || x.stage === stage) && [x.id,x.location,x.desc,x.assignee || ''].join(' ').toLowerCase().includes(q));
 }
-function actionButtons(x){
- if(view==="reports")return `<button class="primary" onclick="triage('${x.id}')">确认并分派</button><button class="ghost" onclick="openDetail('${x.id}')">详情</button>`;
- if(view==="actions")return `<button class="primary" onclick="rectify('${x.id}')">提交整改</button><button class="ghost" onclick="openDetail('${x.id}')">详情</button>`;
- if(view==="verify")return `<button class="success" onclick="verifyItem('${x.id}')">验收通过</button><button class="danger" onclick="rejectItem('${x.id}')">退回</button><button class="ghost" onclick="openDetail('${x.id}')">详情</button>`;
- return `<button class="ghost" onclick="openDetail('${x.id}')">查看</button>`;
+function buttons(x) {
+  const role = actor().role;
+  let html = '';
+  if (!locked && x.stage === 'report' && role === 'manager') html += '<button class="primary" data-action="assign">确认并分派</button>';
+  if (!locked && x.stage === 'action' && role === 'worker' && x.assignee === actor().name) html += '<button class="primary" data-action="rectify">提交整改</button>';
+  if (!locked && x.stage === 'verify' && role === 'reviewer') html += '<button class="success" data-action="approve">验收通过</button><button class="danger" data-action="reject">退回</button>';
+  return html + '<button class="ghost" data-action="detail">详情</button>';
 }
-function stageTag(x){
- const map={report:["待确认","warn"],action:["整改中",""],verify:["待验收","warn"],closed:["已关闭","ok"]};const [t,c]=map[x.stage]||["未知",""];
- return `<span class="tag ${c}">${t}</span>${overdue(x)?'<span class="tag danger">超期</span>':""}`;
+function render() {
+  $('#stats').innerHTML = Object.entries(stageLabels).map(([s,label]) => '<div class="stat"><strong>' + items.filter(x=>x.stage===s).length + '</strong><span>' + label + '</span></div>').join('');
+  for (const [id,s] of [['Reports','report'],['Actions','action'],['Verify','verify']]) $('#badge'+id).textContent = items.filter(x=>x.stage===s).length || '';
+  $('#badgeOverdue').textContent = items.filter(x=>C.overdue(x)).length || '';
+  $('#viewEyebrow').textContent = labels[view][0]; $('#viewTitle').textContent = labels[view][1];
+  $('#list').innerHTML = filtered().map(x => '<article class="card" data-id="' + esc(x.id) + '"><div><div><span class="tag">' + stageLabels[x.stage] + '</span>' + (C.overdue(x)?'<span class="tag danger">超期</span>':'') + '</div><h4>' + esc(x.desc) + '</h4><div class="meta"><span>' + esc(x.id) + '</span><span>地点：' + esc(x.location) + '</span><span>创建：' + esc(fmt(x.createdAt)) + '</span>' + (x.assignee?'<span>责任：'+esc(x.assignee)+'</span>':'') + (x.due?'<span>截止：'+esc(fmt(x.due))+'</span>':'') + '</div></div><div class="card-actions">' + buttons(x) + '</div></article>').join('') || '<div class="empty">这里暂时没有事项。可上报本机测试事项，或载入演示数据。</div>';
 }
-function renderList(){
- const [e,t]=labels[view];document.querySelector("#viewEyebrow").textContent=e;document.querySelector("#viewTitle").textContent=t;
- const arr=filtered();document.querySelector("#list").innerHTML=arr.length?arr.map(x=>`
- <article class="card">
-   <div><div>${stageTag(x)}</div><h4>${x.desc}</h4><div class="meta"><span>${x.id}</span><span>📍 ${x.location}</span><span>${x.created}</span>${x.assignee?'<span>👤 '+x.assignee+'</span>':""}${x.due?'<span>⏱ '+x.due+'</span>':""}</div></div>
-   <div class="card-actions">${actionButtons(x)}</div>
- </article>`).join(""):`<div class="empty">这里暂时没有事项。</div>`;
+function photosHtml(photos) {
+  return photos.map(p=>'<figure><a href="' + esc(p.data) + '" target="_blank" rel="noopener"><img alt="' + esc(p.name) + '" src="' + esc(p.data) + '"></a><figcaption>' + esc(p.name) + '</figcaption></figure>').join('') || '<p>无真实图片</p>';
 }
-function render(){renderStats();renderList();save()}
-window.triage=id=>{const x=items.find(i=>i.id===id);x.stage="action";x.assignee="现场责任组";x.due="明天 17:00";x.history.push(["确认并分派","安全管理员 · "+nowLabel()]);render()}
-window.rectify=id=>{const x=items.find(i=>i.id===id);x.stage="verify";x.history.push(["提交整改证据","整改责任人 · "+nowLabel()]);render()}
-window.verifyItem=id=>{const x=items.find(i=>i.id===id);x.stage="closed";x.history.push(["验收通过并关闭","验收人员 · "+nowLabel()]);render()}
-window.rejectItem=id=>{const x=items.find(i=>i.id===id);x.stage="action";x.history.push(["验收退回：请补充整改证据","验收人员 · "+nowLabel()]);render()}
-window.openDetail=id=>{const x=items.find(i=>i.id===id);document.querySelector("#detailContent").innerHTML=`
- <div class="dialog-head"><div><div class="eyebrow">${x.id}</div><h3>${x.desc}</h3></div><button class="icon-btn" onclick="detailDialog.close()">×</button></div>
- <div class="meta"><span>📍 ${x.location}</span>${x.assignee?'<span>👤 '+x.assignee+'</span>':""}${x.due?'<span>⏱ '+x.due+'</span>':""}</div>
- <div class="timeline">${x.history.map(h=>`<div class="event"><strong>${h[0]}</strong><span>${h[1]}</span></div>`).join("")}</div>`;
- document.querySelector("#detailDialog").showModal();}
-document.querySelectorAll(".nav").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));b.classList.add("active");view=b.dataset.view;renderList()}));
-const reportDialog=document.querySelector("#reportDialog");
-document.querySelector("#newReportBtn").onclick=()=>reportDialog.showModal();
-document.querySelector("#reportForm").addEventListener("submit",e=>{const loc=document.querySelector("#locationInput").value,desc=document.querySelector("#descInput").value.trim();if(!loc||!desc)return;
- items.unshift({id:"SF-"+String(items.length+5).padStart(3,"0"),location:loc,desc,stage:"report",created:"刚刚",evidence:!!document.querySelector("#photoInput").files.length,assignee:null,due:null,history:[["问题上报","当前用户 · "+nowLabel()]]});document.querySelector("#reportForm").reset();render();});
-document.querySelector("#resetBtn").onclick=()=>{items=structuredClone(seed);render()};
+function detail(x) {
+  $('#detailContent').innerHTML = '<div class="dialog-head"><div><div class="eyebrow">' + esc(x.id) + '</div><h3>' + esc(x.desc) + '</h3></div><button class="icon-btn" aria-label="关闭详情" data-close="detailDialog">×</button></div><p>地点：' + esc(x.location) + ' · ' + stageLabels[x.stage] + '</p><p>责任组：' + esc(x.assignee || '未分派') + ' · 截止：' + (x.due?esc(fmt(x.due)):'未设定') + '</p>' + (x.legacyDue?'<p>旧版期限原文：'+esc(x.legacyDue)+'（未核实，不用于逾期判断）</p>':'') + '<h4>现场图片</h4><div class="photos">' + photosHtml(x.reportEvidence) + '</div><h4>最新整改图片</h4><div class="photos">' + photosHtml(x.rectificationEvidence) + '</div><div class="timeline">' + x.history.map(h=>'<div class="event"><strong>'+esc(h.action)+'</strong><span>'+esc(h.actor)+' · '+esc(fmt(h.at))+'</span><p>'+esc(h.note)+'</p>'+(h.assignee?'<p>责任：'+esc(h.assignee)+' · 截止：'+esc(fmt(h.due))+'</p>':'')+(h.photos?'<div class="photos">'+photosHtml(h.photos)+'</div>':'')+'</div>').join('')+'</div>';
+  $('#detailDialog').showModal();
+}
+function openAction(x, action) {
+  pending = {id:x.id, action}; $('#actionForm').reset(); $('#actionError').textContent = '';
+  $('#actionTitle').textContent = {assign:'确认并分派',rectify:'提交整改',approve:'验收通过',reject:'退回整改'}[action];
+  $('#assignFields').hidden = action !== 'assign';
+  $('#actionDue').required = action === 'assign';
+  $('#actionNote').required = action !== 'assign';
+  $('#actionPhotoLabel').hidden = action !== 'rectify';
+  $('#actionPhotos').required = action === 'rectify';
+  if (action === 'assign') { const d = new Date(Date.now()+86400000); $('#actionDue').value = new Date(d-d.getTimezoneOffset()*60000).toISOString().slice(0,16); }
+  $('#actionDialog').showModal();
+}
+async function readPhotos(input) {
+  const files = [...input.files]; if(files.length>3) throw new Error('每次最多 3 张图片');
+  return Promise.all(files.map(async file=>{
+    if(!['image/png','image/jpeg','image/webp'].includes(file.type) || file.size>1048576) throw new Error('图片须为 PNG/JPEG/WebP，单张不超过 1MB');
+    const data = await new Promise((resolve,reject)=>{ const r=new FileReader(); r.onload=()=>resolve(r.result); r.onerror=()=>reject(new Error('读取图片失败，请重试')); r.readAsDataURL(file); });
+    const image = new Image(); image.src=data; await image.decode().catch(()=>{throw new Error('图片内容无法解码，请选择有效图片');});
+    return {name:file.name, data};
+  }));
+}
+document.addEventListener('click', e=>{
+  const close=e.target.closest('[data-close]'); if(close){ $('#'+close.dataset.close).close(); return; }
+  const b=e.target.closest('[data-action]'); if(!b)return;
+  const x=items.find(i=>i.id===b.closest('[data-id]').dataset.id);
+  if(b.dataset.action==='detail')detail(x); else openAction(x,b.dataset.action);
+});
+document.querySelectorAll('.nav').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.nav').forEach(x=>x.classList.toggle('active',x===b));
+  view=b.dataset.view; render();
+}));
+for(const id of ['searchInput','stageInput','actorInput']) $('#'+id).addEventListener('input',render);
+$('#actorInput').addEventListener('change',()=>{ if($('#actionDialog').open) $('#actionDialog').close(); pending=null; render(); });
+$('#newReportBtn').onclick=()=>{ if(locked){message('数据异常，请先导出原始备份',true);return;} $('#reportError').textContent=''; $('#reportDialog').showModal(); };
+$('#reportForm').addEventListener('submit',async e=>{
+  e.preventDefault(); const submit=$('#submitReport'); submit.disabled=true;
+  const currentActor=actor();
+  try {
+    const input={location:$('#locationInput').value,desc:$('#descInput').value,photos:await readPhotos($('#photoInput'))};
+    await commit([C.report(input,currentActor),...items]); $('#reportForm').reset(); $('#reportDialog').close();
+  } catch(e){$('#reportError').textContent=e.message;}
+  finally{submit.disabled=false;}
+});
+$('#actionForm').addEventListener('submit',async e=>{
+  e.preventDefault(); const b=$('#submitAction'); b.disabled=true; const p={...pending}, currentActor=actor();
+  try {
+    const x=items.find(i=>i.id===p.id);
+    const input={assignee:$('#actionAssignee').value,due:$('#actionDue').value,note:$('#actionNote').value,photos:p.action==='rectify'?await readPhotos($('#actionPhotos')):[]};
+    const next=C.transition(x,p.action,input,currentActor);
+    await commit(items.map(i=>i.id===p.id?next:i)); $('#actionDialog').close();
+  } catch(e){$('#actionError').textContent=e.message;}
+  finally{b.disabled=false;}
+});
+function download(name, data, type) {
+  const url=URL.createObjectURL(new Blob([data],{type})), a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+$('#exportCsv').onclick=()=>download('safety-flow-test-ledger.csv',C.csv(filtered()),'text/csv;charset=utf-8');
+$('#exportJson').onclick=()=>{
+  try { download('safety-flow-local-backup.json',locked?JSON.stringify({unreadable:localStorage.getItem(KEY),legacy:localStorage.getItem('sf-preview')}):C.serialize(items),'application/json'); }
+  catch(e){message('无法访问本地存储：'+e.message,true);}
+};
+$('#resetBtn').onclick=async()=>{
+  if(locked){message('数据异常，禁止覆盖。请先导出原始备份。',true);return;}
+  if(!confirm('载入演示会替换当前本机测试记录。请先导出备份。是否继续？'))return;
+  try {
+    const at=new Date().toISOString(), manager=C.actors.manager;
+    const a=C.report({location:'地下车库',desc:'【演示】消防通道堆放纸箱'},C.actors.inspector,at,'DEMO-001');
+    let b=C.report({location:'3#配电房',desc:'【演示】配电柜前堆放维修材料'},C.actors.inspector,at,'DEMO-002');
+    b=C.transition(b,'assign',{assignee:C.actors.worker.name,due:new Date(Date.now()+86400000).toISOString()},manager);
+    // Legacy demo records are preserved through migration; new examples never fake evidence.
+    await commit([a,b]);
+  }catch(e){message(e.message,true);}
+};
+window.addEventListener('storage',e=>{if(e.key===KEY||e.key===null){locked=true;message('其他标签页已更新本地存储，请刷新以读取最新记录。当前页面写入已锁定。',true);render();}});
 render();

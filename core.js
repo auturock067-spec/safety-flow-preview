@@ -104,12 +104,12 @@
     const rows = JSON.parse(raw); requireValue(Array.isArray(rows), '旧数据格式无效');
     return validItems(rows.map(x => ({ ...x, createdAt: null, updatedAt: null, due: null, legacyCreated: x.created, legacyDue: x.due, reportEvidence: [], rectificationEvidence: [], testData: true, history: x.history.map(h => ({ action: String(h[0]), actor: String(h[1]), at: null, note: '旧版展示记录，原始时间未核实' })) })));
   }
-  function serialize(items) { validItems(items); return JSON.stringify({ version: 2, mode: 'local-test-only', items }); }
-  function persist(storage, key, next, expected) {
+  function serialize(items, workspace) { validItems(items); return JSON.stringify({ version: 2, mode: 'local-test-only', items, ...(workspace === undefined ? {} : {workspace}) }); }
+  function persist(storage, key, next, expected, workspace) {
     // Callers must serialize cross-tab writes with a shared Web Lock. These
     // revision checks detect stale/reentrant writes; localStorage is not CAS.
     requireValue(storage.getItem(key) === expected, '其他标签页已更新数据，请刷新后重试');
-    const raw = serialize(next);
+    const raw = serialize(next, workspace);
     requireValue(storage.getItem(key) === expected, '其他标签页已更新数据，请刷新后重试');
     storage.setItem(key, raw); return raw;
   }

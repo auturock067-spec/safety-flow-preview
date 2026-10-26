@@ -44,6 +44,10 @@
         <button class="nav" data-view="verify">待我验收 <span id="badgeVerify"></span></button>
         <button class="nav" data-view="overdue">已超期 <span id="badgeOverdue"></span></button>
         <button class="nav" data-view="ledger">台账</button>
+<button class="nav" data-view="inspection">巡检与草稿</button>
+<button class="nav" data-view="inspectionHistory">巡检记录</button>
+<button class="nav" data-view="templates">检查模板</button>
+<button class="nav" data-view="monthly">月报</button>
       </aside>
       <section class="panel">
         <div class="panel-head">
@@ -59,7 +63,7 @@
 
     <section class="note">
       <strong>当前预览重点：</strong>
-      <span>极简上报、专业确认、整改图片、验收退回、操作留痕。Safety Pack、QR、外部整改链接将在真实 V1 审计后决定实现方式。</span>
+      <span>极简上报、整改验收、巡检草稿、检查模板、巡检历史、月报和本机备份恢复。模板非法规核验；真实登录、单位隔离和外部任务授权尚未实现。</span>
     </section>
   </main>
 
@@ -108,7 +112,10 @@
     <label id="actionPhotoLabel">整改图片<input id="actionPhotos" type="file" accept="image/png,image/jpeg,image/webp" multiple><small>至少一张有效图片，最多 3 张，单张不超过 1MB。</small></label>
     <p id="actionError" class="error" role="alert"></p><div class="dialog-actions"><button type="button" data-close="actionDialog" class="ghost">取消</button><button id="submitAction" type="submit" class="primary">保存操作</button></div>
   </form></dialog>
-  <script src="./core.js"></script>
+  <label class="backup-control">恢复本机测试备份（将确认替换当前记录）<input id="restoreBackup" type="file" accept="application/json,.json"></label>
+<script src="./core.js"></script>
+<script src="./inspection-core.js"></script>
+<script src="./inspection-ui.js"></script>
   <script src="./app.js"></script>
 </body>
 </html>

@@ -1,11 +1,13 @@
 {
-  "source": "auturock067-spec/safety-flow",
-  "sourceCommit": "6c8fca6ecb8635f910d11b593918a0f2a42906ce",
   "mode": "local-test-only",
+  "source": "auturock067-spec/safety-flow",
+  "sourceCommit": "54901ca62c445e473d227b5f8208f99f48d4087c",
   "hashes": {
-    "index.html": "331ffdc3c24f08f0c9052d053c2750aec4644e7792731d7ea77e272c06006c04",
-    "styles.css": "e3362630e0bf24bfad843ed14c7be67c8456332b929d1b43e95d81651ea9eb52",
-    "core.js": "416c1167fcce9d29199cf408dc90aefc9634cfc9d7cf26cb580053b91d19666d",
-    "app.js": "390da5fb69d148d68c43abc4249e341f0a9b207e7e0cf643595a85737f9317bd"
+    "index.html": "0c0ee47fd7b13df52c4e8b2f259197ac2419d5be3ea79aa04a65c745892d0566",
+    "styles.css": "57f2e1d2c7df1097d2f35acfff45097613996f8452bfa4205ea02e480b3f670c",
+    "core.js": "199bc37ac05081cdec7ca215f7920e409c53afdc83a63482272028624109d3be",
+    "app.js": "8e1d12b2474a37f97768a536fd4789383b92f79d4fcc4469de100c5c6f64e79d",
+    "inspection-core.js": "42257fcfab4cad56030be86921c1ede439a00b7392b4d6217441ce3ba2bdfd78",
+    "inspection-ui.js": "4276fbcc18753fe380beaf7401cc50ecd1b5571ef760f414cf255be3275f8984"
   }
 }

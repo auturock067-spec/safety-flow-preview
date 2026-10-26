@@ -58,3 +58,5 @@ dialog{max-height:calc(100dvh - 24px);overflow:auto}.icon-btn,button{min-height:
   .workspace{grid-template-columns:1fr}.sidebar{display:grid;grid-template-columns:repeat(2,1fr)}.panel-head{align-items:flex-start;gap:8px;flex-direction:column}
   .card{grid-template-columns:1fr}.card-actions{justify-content:flex-start}.legend{display:none}
 }
+
+.check-item{min-width:0;border:1px solid #dfe3eb;border-radius:12px;padding:14px;margin:14px 0}.check-item legend{max-width:100%;font-weight:650;overflow-wrap:anywhere}.backup-control{display:block;max-width:700px;margin:24px auto;padding:18px;background:white;border-radius:12px}.list form{min-width:0;width:100%}.list details{overflow-wrap:anywhere}.list details button{margin:5px 0;max-width:100%;overflow-wrap:anywhere}.list textarea{width:100%;box-sizing:border-box}.list select,.list input{max-width:100%;box-sizing:border-box}

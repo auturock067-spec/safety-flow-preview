@@ -60,3 +60,4 @@ dialog{max-height:calc(100dvh - 24px);overflow:auto}.icon-btn,button{min-height:
 }
 
 .check-item{min-width:0;border:1px solid #dfe3eb;border-radius:12px;padding:14px;margin:14px 0}.check-item legend{max-width:100%;font-weight:650;overflow-wrap:anywhere}.backup-control{display:block;max-width:700px;margin:24px auto;padding:18px;background:white;border-radius:12px}.list form{min-width:0;width:100%}.list details{overflow-wrap:anywhere}.list details button{margin:5px 0;max-width:100%;overflow-wrap:anywhere}.list textarea{width:100%;box-sizing:border-box}.list select,.list input{max-width:100%;box-sizing:border-box}
+.list input:not([type=file]){display:block;width:100%;min-width:0;min-height:44px;margin-top:7px;padding:11px;border:1px solid #d0d5dd;border-radius:10px;background:#fff}

@@ -1,0 +1,14 @@
+{
+  "mode": "local-test-only",
+  "hashes": {
+    "index.html": "129770c31c2df156098f5afc07715125fdd7ce120ec5bb0353be97b48d493028",
+    "styles.css": "c224679fdc5a8f50809b08a81ba156d15a868923f4518e75a4ae884da22c8f24",
+    "core.js": "199bc37ac05081cdec7ca215f7920e409c53afdc83a63482272028624109d3be",
+    "app.js": "aa9ecfc762f3d6eb21df8816564e92a15e8fc1a9371054cd7fd7afe2754da3b7",
+    "inspection-core.js": "42257fcfab4cad56030be86921c1ede439a00b7392b4d6217441ce3ba2bdfd78",
+    "inspection-ui.js": "4276fbcc18753fe380beaf7401cc50ecd1b5571ef760f414cf255be3275f8984",
+    "bootstrap.js": "f3f480e94baa4d2671280068528ce675a428399318c9b11dc340ba300623b3f5",
+    "server-app.js": "212636b7bc78d9effd259dc13d5e59cb61c1b828f8315ddfe5e357ed890c6d26",
+    "server-inspection-ui.js": "ce724e134ab0fc55ffa9d3e55993d0bdc090cb8ff11574b8999556f380ea12c1"
+  }
+}

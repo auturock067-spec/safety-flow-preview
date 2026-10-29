@@ -1,13 +1,7 @@
 {
-  "mode": "local-test-only",
-  "source": "auturock067-spec/safety-flow",
-  "sourceCommit": "098d3168c5fbf830c78ebaf3322f0bc04cc8e884",
-  "hashes": {
-    "index.html": "0c0ee47fd7b13df52c4e8b2f259197ac2419d5be3ea79aa04a65c745892d0566",
-    "styles.css": "f3a27e904a4ed0059e019057be27ec1a71aa9d8edecfc3b681fa786d7e14f356",
-    "core.js": "199bc37ac05081cdec7ca215f7920e409c53afdc83a63482272028624109d3be",
-    "app.js": "8e1d12b2474a37f97768a536fd4789383b92f79d4fcc4469de100c5c6f64e79d",
-    "inspection-core.js": "42257fcfab4cad56030be86921c1ede439a00b7392b4d6217441ce3ba2bdfd78",
-    "inspection-ui.js": "4276fbcc18753fe380beaf7401cc50ecd1b5571ef760f414cf255be3275f8984"
-  }
+  "sourceRepository": "auturock067-spec/safety-flow",
+  "sourceRevision": "59bd9a98be0f5fdabcf361dc7e6a153607945fb1",
+  "scope": "isolated-static-design-preview",
+  "authentication": "not-deployed",
+  "data": "browser-local-test-only"
 }

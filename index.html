@@ -4,50 +4,51 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Safety Flow 安巡记 · 本机测试</title>
-  <meta name="description" content="Safety Flow Core V1.1 research preview" />
+  <meta name="description" content="安巡记：现场巡检、隐患上报与整改跟踪工作台" />
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
   <header class="topbar">
-    <div>
-      <div class="eyebrow">RESEARCH PREVIEW · NOT ORIGINAL V1</div>
-      <h1>Safety Flow</h1>
-      <p>轻量现场安全排查与整改闭环</p>
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M16 3 27 7v9c0 6-7 11-11 13C12 27 5 22 5 16V7L16 3Z" stroke="currentColor" stroke-width="1.8"/><path d="m11 16 3.5 3.5L22 12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      <div class="brand-copy"><div class="eyebrow">SAFETY FLOW</div><h1>安巡记</h1><p>安全巡检 · 隐患整改</p></div>
     </div>
-    <button id="resetBtn" class="ghost">载入演示数据</button>
+    <div class="header-actions"><span class="space-indicator">试用空间</span><a class="ghost" href="?mode=server">账号预览</a><button id="resetBtn" class="ghost">演示数据</button></div>
   </header>
 
   <main class="shell">
-    <section class="note"><strong>本机测试版 · TEST DATA ONLY</strong><p>仅保存于当前浏览器，无云端同步、登录认证或单位数据隔离。不要录入真实患者、人员或生产敏感资料。角色切换仅模拟流程；本地审计记录可被设备使用者修改。</p></section>
+    <section class="note mode-notice"><strong>本机试用</strong><p>数据仅保存在当前浏览器，身份为流程模拟，无共享同步或单位隔离。请使用测试资料，本地历史可被修改。</p></section>
     <p id="message" role="status" aria-live="polite"></p>
+
+    <section class="hero">
+      <div>
+        <span class="pill"><span class="status-dot"></span>安全工作台</span>
+        <h2>每一项隐患，都有回音。</h2>
+        <p>记录现场问题，明确责任，跟进整改与独立复核。</p>
+      </div>
+      <button id="newReportBtn" class="primary">＋ 上报问题</button>
+    </section>
+
+    <section class="stats" id="stats" aria-label="事项状态概览"></section>
+
     <section class="toolbar" aria-label="测试身份与台账工具">
       <label>测试身份<select id="actorInput"><option value="inspector">巡查人员</option><option value="manager">安全管理员</option><option value="worker">现场责任组</option><option value="reviewer">复核人员</option></select></label>
       <label>搜索<input id="searchInput" type="search" placeholder="编号、地点、描述、责任组"></label>
       <label>状态筛选<select id="stageInput"><option value="">全部状态</option><option value="report">待确认</option><option value="action">整改中</option><option value="verify">待验收</option><option value="closed">已关闭</option></select></label>
       <button id="exportCsv" class="ghost">导出当前筛选台账 CSV</button><button id="exportJson" class="ghost">导出完整本机备份</button>
     </section>
-    <section class="hero">
-      <div>
-        <span class="pill">Core V1.1</span>
-        <h2>发现一个问题，直到它真正解决。</h2>
-        <p>普通人员只负责快速上报；安全管理人员负责确认、分派、验收和归档。</p>
-      </div>
-      <button id="newReportBtn" class="primary">＋ 发现问题</button>
-    </section>
-
-    <section class="stats" id="stats"></section>
 
     <section class="workspace">
-      <aside class="sidebar">
-        <button class="nav active" data-view="reports">待确认 <span id="badgeReports"></span></button>
-        <button class="nav" data-view="actions">我的整改 <span id="badgeActions"></span></button>
-        <button class="nav" data-view="verify">待我验收 <span id="badgeVerify"></span></button>
-        <button class="nav" data-view="overdue">已超期 <span id="badgeOverdue"></span></button>
-        <button class="nav" data-view="ledger">台账</button>
-<button class="nav" data-view="inspection">巡检与草稿</button>
-<button class="nav" data-view="inspectionHistory">巡检记录</button>
-<button class="nav" data-view="templates">检查模板</button>
-<button class="nav" data-view="monthly">月报</button>
+      <aside class="sidebar" aria-label="工作导航"><div class="nav-section">工作队列</div>
+        <button class="nav active" data-view="reports"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 5h14v14H5z M9 9h6 M9 13h4"/></svg><span class="nav-label">待确认</span><span id="badgeReports"></span></button>
+        <button class="nav" data-view="actions"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 5h11v15H5V8 M8 3v5h8 M9 12h6 M9 16h4"/></svg><span class="nav-label">我的整改</span><span id="badgeActions"></span></button>
+        <button class="nav" data-view="verify"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 20 6v6c0 5-8 9-8 9s-8-4-8-9V6l8-3z M8 12l3 3 5-6"/></svg><span class="nav-label">待我验收</span><span id="badgeVerify"></span></button>
+        <button class="nav" data-view="overdue"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18 M12 7v6l4 2"/></svg><span class="nav-label">已超期</span><span id="badgeOverdue"></span></button>
+        <button class="nav" data-view="ledger"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h14v16H5z M8 8h8 M8 12h8 M8 16h5"/></svg><span class="nav-label">台账</span></button>
+<div class="nav-section">巡检与记录</div><button class="nav" data-view="inspection"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H5v15h14V5h-4 M9 3h6v4H9z M8 12l2 2 5-5 M8 17h8"/></svg><span class="nav-label">巡检与草稿</span></button>
+<button class="nav" data-view="inspectionHistory"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a8 8 0 1 1 2 7 M4 4v7h7 M12 8v5l3 2"/></svg><span class="nav-label">巡检记录</span></button>
+<button class="nav" data-view="templates"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h7v7H4z M14 4h6v7h-6z M4 14h7v6H4z M14 14h6v6h-6z"/></svg><span class="nav-label">检查模板</span></button>
+<button class="nav" data-view="monthly"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19V9 M12 19V4 M19 19v-7 M3 21h19"/></svg><span class="nav-label">月报</span></button>
       </aside>
       <section class="panel">
         <div class="panel-head">
@@ -55,14 +56,14 @@
             <div class="eyebrow" id="viewEyebrow">TRIAGE</div>
             <h3 id="viewTitle">待确认</h3>
           </div>
-          <div class="legend">Report → Finding → Action → Verification → Closed</div>
+          <div class="legend">发现 · 分派 · 整改 · 验收</div>
         </div>
         <div id="list" class="list"></div>
       </section>
     </section>
 
-    <section class="note">
-      <strong>当前预览重点：</strong>
+    <section class="note scope-note">
+      <strong>试用范围</strong>
       <span>极简上报、整改验收、巡检草稿、检查模板、巡检历史、月报和本机备份恢复。模板非法规核验；真实登录、单位隔离和外部任务授权尚未实现。</span>
     </section>
   </main>
@@ -71,7 +72,7 @@
     <form id="reportForm">
       <div class="dialog-head">
         <div>
-          <div class="eyebrow">30-SECOND REPORT</div>
+          <div class="eyebrow">现场问题记录</div>
           <h3>发现问题</h3>
         </div>
         <button type="button" data-close="reportDialog" class="icon-btn" aria-label="关闭">×</button>
@@ -113,9 +114,6 @@
     <p id="actionError" class="error" role="alert"></p><div class="dialog-actions"><button type="button" data-close="actionDialog" class="ghost">取消</button><button id="submitAction" type="submit" class="primary">保存操作</button></div>
   </form></dialog>
   <label class="backup-control">恢复本机测试备份（将确认替换当前记录）<input id="restoreBackup" type="file" accept="application/json,.json"></label>
-<script src="./core.js"></script>
-<script src="./inspection-core.js"></script>
-<script src="./inspection-ui.js"></script>
-  <script src="./app.js"></script>
+<script src="./bootstrap.js"></script>
 </body>
 </html>

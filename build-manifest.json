@@ -1,14 +1,15 @@
 {
   "mode": "local-test-only",
   "hashes": {
-    "index.html": "129770c31c2df156098f5afc07715125fdd7ce120ec5bb0353be97b48d493028",
-    "styles.css": "c224679fdc5a8f50809b08a81ba156d15a868923f4518e75a4ae884da22c8f24",
-    "core.js": "199bc37ac05081cdec7ca215f7920e409c53afdc83a63482272028624109d3be",
-    "app.js": "aa9ecfc762f3d6eb21df8816564e92a15e8fc1a9371054cd7fd7afe2754da3b7",
+    "index.html": "a6f539a648ce0db5c56c3a8ad5c1dff1954caa0470481fb6c0077c839b276d37",
+    "styles.css": "097ce83df5134a669e2c9624f513106766b4aa999b72e8d2a25689f55884e312",
+    "core.js": "7d25d9e1e9ff306be834dc8d06e6e737a3b5f6cc7d6c6c550f8579786459d99c",
+    "app.js": "a45ccc35238fde2b3aa1232ee334acf043590797841cd945b667e54b2ef9cbf4",
     "inspection-core.js": "42257fcfab4cad56030be86921c1ede439a00b7392b4d6217441ce3ba2bdfd78",
-    "inspection-ui.js": "4276fbcc18753fe380beaf7401cc50ecd1b5571ef760f414cf255be3275f8984",
-    "bootstrap.js": "f3f480e94baa4d2671280068528ce675a428399318c9b11dc340ba300623b3f5",
-    "server-app.js": "212636b7bc78d9effd259dc13d5e59cb61c1b828f8315ddfe5e357ed890c6d26",
-    "server-inspection-ui.js": "ce724e134ab0fc55ffa9d3e55993d0bdc090cb8ff11574b8999556f380ea12c1"
+    "inspection-ui.js": "119bf6e8b57a5d2c1ea1d21a84590ead05f053e1fac24e32fef11b7be1ee80b0",
+    "bootstrap.js": "dfb533c9d346511af6daacbf91f11ca71184b36c3092a0fda10b98bf3e0903a7",
+    "server-app.js": "6111c13ac5dd60d9d919d066e997cd1941dce76cd4de588ac248d6001b2e80e3",
+    "server-inspection-ui.js": "ce724e134ab0fc55ffa9d3e55993d0bdc090cb8ff11574b8999556f380ea12c1",
+    "i18n.js": "42827b5073d32dfa57e5e6b0523e0a54771f283a4be594747001fbcdb6d7a959"
   }
 }

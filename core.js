@@ -117,8 +117,11 @@
     let s = String(value ?? ''); if (/^[\s]*[=+\-@]/.test(s)) s = "'" + s;
     return '"' + s.replaceAll('"', '""') + '"';
   }
-  function csv(items) {
-    return '\uFEFF' + [['编号', '地点', '问题', '状态', '责任组', '截止时间', '创建时间', '关闭时间', '数据用途'], ...items.map(x => [x.id, x.location, x.desc, x.stage, x.assignee, x.due, x.createdAt, x.closedAt, '本机测试数据'])].map(row => row.map(csvCell).join(',')).join('\r\n');
+  function csv(items,language='zh') {
+    const en=language==='en',header=en?['ID','Location','Issue','Status','Assigned team','Due date','Created at','Closed at','Data purpose']:['编号','地点','问题','状态','责任组','截止时间','创建时间','关闭时间','数据用途'];
+    const names={'3#配电房':'Electrical room 3','地下车库':'Underground garage','消防通道':'Fire exit route','设备机房':'Plant room','员工食堂':'Staff cafeteria','现场责任组':'Assigned team'},states={report:'To confirm',action:'In progress',verify:'Awaiting review',closed:'Closed'};
+    const field=value=>en&&Object.hasOwn(names,value)?names[value]:value;
+    return '\uFEFF'+[header,...items.map(x=>[x.id,field(x.location),x.desc,en?states[x.stage]:x.stage,field(x.assignee),x.due,x.createdAt,x.closedAt,en?'Local test data':'本机测试数据'])].map(row=>row.map(csvCell).join(',')).join('\r\n');
   }
   const api = { actors, report, transition, overdue, decode, migrate, serialize, persist, csv };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;

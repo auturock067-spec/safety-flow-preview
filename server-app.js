@@ -141,7 +141,7 @@
  };
  inspectionUI=SafetyAccountInspections({api,user:()=>user,epoch:()=>epoch,esc,photos,message,view:()=>currentView,pager:c=>{cursor=c;more.hidden=!c;more.disabled=false;}});
  $('#exportCsv').onclick=async()=>{
-  if(!user||$('#exportCsv').disabled)return;const generation=epoch,query=filters();query.delete('limit');query.delete('cursor');exportBusy=true;updateExport();
+  if(!user||$('#exportCsv').disabled)return;const generation=epoch,query=filters();query.delete('limit');query.delete('cursor');query.set('lang',globalThis.SafetyI18n?.language||'zh');exportBusy=true;updateExport();
   try{const blob=await api('/api/reports/export.csv?'+query,{format:'csv'});if(generation!==epoch)return;
    const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='safety-flow-ledger-'+new Date().toISOString().slice(0,10)+'.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
    message('已导出当前筛选的全部匹配记录（服务端导出时快照，最多5000条）。');

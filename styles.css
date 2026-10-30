@@ -140,3 +140,5 @@ dialog::backdrop{background:#102b235c;backdrop-filter:blur(3px)}
  .topbar{padding:13px 14px}.header-actions{width:100%;justify-content:flex-end;border-top:1px solid #eef2ed;padding-top:10px}.shell{padding-inline:12px}.hero h2{font-size:23px}.toolbar button{min-width:100%}.nav{font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+.lang-en .brand-copy .eyebrow{display:none}.lang-en .brand-copy{grid-template-columns:1fr}.lang-en .topbar h1{font-size:23px;letter-spacing:-.03em}.lang-en .hero h2{font-size:30px;letter-spacing:-.04em}.lang-en .nav{font-size:12px}.lang-en .toolbar button{font-size:11px}.lang-en .mode-notice strong{white-space:normal}.lang-en .mode-notice p{min-width:0}@media(max-width:760px){.header-actions{flex-wrap:wrap}.lang-en .hero h2{font-size:25px}.lang-en .nav{font-size:12px}.lang-en .topbar h1{font-size:21px}.lang-en .topbar .header-actions{width:100%;justify-content:flex-end}.lang-en .mode-notice p{flex-basis:100%}}

@@ -34,7 +34,7 @@ function filtered() {
   const q = $('#searchInput').value.trim().toLowerCase(), stage = $('#stageInput').value;
   return items.filter(x =>
     (view === 'reports' ? x.stage === 'report' : view === 'actions' ? x.stage === 'action' : view === 'verify' ? x.stage === 'verify' : view === 'overdue' ? C.overdue(x) : true) &&
-    (!stage || x.stage === stage) && [x.id,x.location,x.desc,x.assignee || ''].join(' ').toLowerCase().includes(q));
+    (!stage || x.stage === stage) && [x.id,x.location,x.desc,x.assignee||'',globalThis.SafetyI18n?.t(x.location)||'',globalThis.SafetyI18n?.t(x.assignee||'')||''].join(' ').toLowerCase().includes(q));
 }
 function buttons(x) {
   const role = actor().role;
@@ -117,7 +117,7 @@ $('#actionForm').addEventListener('submit',async e=>{
 function download(name, data, type) {
   const url=URL.createObjectURL(new Blob([data],{type})), a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-$('#exportCsv').onclick=()=>download('safety-flow-test-ledger.csv',C.csv(filtered()),'text/csv;charset=utf-8');
+$('#exportCsv').onclick=()=>download('safety-flow-test-ledger.csv',C.csv(filtered(),globalThis.SafetyI18n?.language||'zh'),'text/csv;charset=utf-8');
 $('#exportJson').onclick=()=>{
   try { download('safety-flow-local-backup.json',locked?JSON.stringify({unreadable:localStorage.getItem(KEY),legacy:localStorage.getItem('sf-preview')}):C.serialize(items,workspace),'application/json'); }
   catch(e){message('无法访问本地存储：'+e.message,true);}

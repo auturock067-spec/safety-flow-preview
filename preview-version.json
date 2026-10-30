@@ -1,7 +1,6 @@
 {
-  "sourceRepository": "auturock067-spec/safety-flow",
-  "sourceRevision": "59bd9a98be0f5fdabcf361dc7e6a153607945fb1",
-  "scope": "isolated-static-design-preview",
-  "authentication": "not-deployed",
-  "data": "browser-local-test-only"
+  "sourceRevision": "958746d4a3bedd77232cc5e0b8937ad57708ebf6",
+  "data": "local-browser-only; simulated roles; no shared cloud sync",
+  "language": "Chinese/English",
+  "production": false
 }
